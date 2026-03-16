@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prosperity Candidate Discovery"
+  short_description: "Scan replay evidence for real candidate trades."
+  default_prompt: "Use $prosperity-candidate-discovery to scan the current Prosperity data or replay outputs for missed trades, bad triggers, and repeated candidate patterns."
+
+policy:
+  allow_implicit_invocation: true

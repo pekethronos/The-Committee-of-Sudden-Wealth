@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prosperity Manual Round Solver"
+  short_description: "Solve or template Prosperity manual challenge work."
+  default_prompt: "Use $prosperity-manual-round-solver to solve the current Prosperity manual challenge and record the reusable pattern."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prosperity Round Open Checklist"
+  short_description: "Triage new official round materials on Day 1."
+  default_prompt: "Use $prosperity-round-open-checklist to diff the newly released Prosperity rules and files against our prior assumptions and produce the immediate build priorities."
+
+policy:
+  allow_implicit_invocation: true

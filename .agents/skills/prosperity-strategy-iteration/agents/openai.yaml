@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prosperity Strategy Iteration"
+  short_description: "Patch and validate trader logic from replay evidence."
+  default_prompt: "Use $prosperity-strategy-iteration to implement a Prosperity strategy hypothesis, replay it, and record the before and after trade-level evidence."
+
+policy:
+  allow_implicit_invocation: true
