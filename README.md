@@ -26,6 +26,7 @@ Those two documents already answer the broad strategic question. The remaining w
 - `docs/trade-candidate-log.md` - open, rejected, uncertain, and fixed candidate cases
 - `docs/baseline-snapshots.md` - periodic replay snapshots to detect drift
 - `docs/round-open-checklist.md` - Day 1 / new-round checklist
+- `docs/day0-intake.md` - official Day 0 notes and current tutorial assumptions
 - `docs/manual-round-log.md` - manual-round work log and solved patterns
 - `scripts/` - lightweight workflow helpers
 - `templates/trader.py` - minimal Prosperity trader starting point
@@ -65,6 +66,7 @@ Start with:
 ./scripts/init_trader_from_template.sh rounds/tutorial/trader.py
 ./scripts/run_public_replay.sh rounds/tutorial/trader.py 0
 ./scripts/run_first_practice_backtest.sh
+./scripts/run_official_tutorial_backtest.sh
 ./scripts/run_round2_practice_backtest.sh
 ./scripts/diff_backtest_trades.py artifacts/sweeps/baseline_runtime.log artifacts/sweeps/bad_resin_runtime.log
 ./scripts/decompose_backtest_trades.py artifacts/tutorial/replays/round0.log

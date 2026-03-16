@@ -63,3 +63,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: basket performance is highly sensitive and remained negative across the bundled challenge window even after stricter thresholds; keep the module experimental until visual inspection on actual round data identifies a repeatable edge.
 - Rejected alternatives: assuming `prosperity3bt --vis` implied log compatibility, and defaulting the round-2 practice trader to a generic basket strategy just because basket stat-arb is a recurring archetype.
 - Next follow-up: only re-enable basket logic in a default trader after candidate discovery and visual review on the relevant round data support the thresholds.
+
+### 2026-03-16 - official Day 0 tutorial intake and baseline
+
+- Status: `confirmed`
+- Area: `tooling`
+- Hypothesis: the fastest correct Day 0 move is to ingest the official tutorial files exactly as provided, patch only the tooling breakage needed to replay them locally, and ship the simplest baseline that matches the two tutorial archetypes.
+- Trigger for the work: official Day 0 materials arrived with a new wiki, `EMERALDS` and `TOMATOES` tutorial files, and confirmed tutorial limits.
+- Development window: official tutorial `round 0 days -2/-1` from `data/TUTORIAL_ROUND_1/`
+- Challenge window: same official tutorial bundle; no additional official round data yet
+- Before: repo had no runner for the official tutorial folder, no recorded Day 0 intake, and the public backtester crashed on the new product names because its built-in limit table did not include `EMERALDS` or `TOMATOES`.
+- After: repo now has a Day 0 intake note, a limit-override backtest wrapper, an official tutorial replay script, and a tutorial-round baseline trader using `EMERALDS` fixed fair plus `TOMATOES` dominant-liquidity; the official tutorial baseline replay produced `+8,022` over the two provided days.
+- Trade-level changes: added `scripts/run_backtest_with_limit_overrides.py`, `scripts/run_official_tutorial_backtest.sh`, and `rounds/tutorial_round_1/trader.py`; patched the baseline to use the official `80` position limits from the wiki.
+- PnL / trade count deltas: official tutorial replay finished `EMERALDS +1,464`, `TOMATOES +6,558`, total `+8,022`, with `1,945` submission trades.
+- Parameter sensitivity note: `EMERALDS` is stable enough to keep fixed fair at `10,000`; `TOMATOES` mean shifts across the two tutorial days, so keep it on a book-driven fair until visual review identifies something stronger.
+- Rejected alternatives: hardcoding a single fair for `TOMATOES`, renaming official files to match prior Prosperity product names, or editing the installed backtester package directly.
+- Next follow-up: run candidate discovery on `TOMATOES` using the official tutorial log and only then decide whether any extra tomato-specific logic is worth adding.

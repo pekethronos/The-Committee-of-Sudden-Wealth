@@ -38,3 +38,14 @@ Use this file for wider-window replay summaries so cumulative drift is visible.
 - Win rate: not yet summarized
 - Max drawdown: not yet summarized
 - Notes: round-2 baseline uses only the positive fixed-fair and dominant-liquidity core; generic basket variants were left out of the default trader after challenge-window sweeps stayed negative on the bundled public data
+
+### 2026-03-16
+
+- Commit / branch: `post-Day-0 intake pre-commit state on main`
+- Dataset: official tutorial bundle in `data/TUTORIAL_ROUND_1/`
+- Window: `round 0 days -2/-1`
+- Trade count: `1,945` submission trades
+- Realized PnL: `+8,022`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: first official Prosperity 4 tutorial baseline; local replay uses product-limit overrides because the public backtester does not yet know the `EMERALDS` and `TOMATOES` names

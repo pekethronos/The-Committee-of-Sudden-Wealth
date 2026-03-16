@@ -1,0 +1,49 @@
+# Day 0 Intake
+
+Captured on `2026-03-16` from the Day 0 uplink, the algorithmic challenge page, and the official tutorial files placed in `data/TUTORIAL_ROUND_1/`.
+
+## Official references
+
+- Prosperity 4 wiki: `https://imc-prosperity.notion.site/prosperity-4-wiki`
+- Upload page constraint: Python files only, maximum size `100 KB`
+- Upload cadence: unlimited uploads, latest upload replaces the previous one
+- Tutorial note: tutorial round does not produce final results
+
+## Uplink notes
+
+- Current phase is transit and practice, not the live trading round.
+- Tutorial practice products are `TOMATOES` and `EMERALDS`.
+- The wiki and downloadable data capsule are the primary sources during this phase.
+- A dedicated adviser must be chosen before landing; if not, the system auto-assigns one.
+
+## Data intake
+
+- Local files:
+  - `data/TUTORIAL_ROUND_1/prices_round_0_day_-2.csv`
+  - `data/TUTORIAL_ROUND_1/prices_round_0_day_-1.csv`
+  - `data/TUTORIAL_ROUND_1/trades_round_0_day_-2.csv`
+  - `data/TUTORIAL_ROUND_1/trades_round_0_day_-1.csv`
+- Schema matches the prior Prosperity price and trade CSV layout already supported by `prosperity3bt`.
+- Product set is exactly `EMERALDS` and `TOMATOES`.
+- Official tutorial limits from the wiki page:
+  - `EMERALDS: 80`
+  - `TOMATOES: 80`
+- Current local note: `prosperity3bt` does not ship those product names in its internal limit table, so local tutorial replays use `scripts/run_backtest_with_limit_overrides.py` to patch the official limits without modifying the dependency.
+
+## Product triage
+
+- `EMERALDS`
+  - Archetype: fixed-fair market making
+  - Evidence: both tutorial days center almost exactly on `10,000`
+  - First-pass baseline: fixed fair `10,000` with inventory clearing and limit `80`
+- `TOMATOES`
+  - Archetype: book-driven fair / short-horizon mean reversion
+  - Evidence: tutorial-day means differ materially (`~5008` on day `-2`, `~4978` on day `-1`), so a single fixed fair across both days is weak
+  - First-pass baseline: dominant-liquidity estimator rather than hardcoded fair, with limit `80`
+
+## Immediate Day 0 action
+
+1. Use `rounds/tutorial_round_1/trader.py` as the official tutorial baseline.
+2. Run `./scripts/run_official_tutorial_backtest.sh`.
+3. Open the resulting log in the visualizer with `./scripts/open_visualizer.py artifacts/official_tutorial/replays/round0.log --no-open`.
+4. Only add more complexity after candidate discovery on `TOMATOES`; keep `EMERALDS` simple unless the visualizer shows a contradiction.

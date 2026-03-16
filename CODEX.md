@@ -26,6 +26,7 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - `docs/strategy-iteration-log.md`
 - `docs/trade-candidate-log.md`
 - `docs/baseline-snapshots.md`
+- `docs/day0-intake.md`
 - `docs/round-open-checklist.md`
 - `docs/manual-round-log.md`
 - `.agents/skills/prosperity-candidate-discovery/SKILL.md`
@@ -35,15 +36,18 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - `scripts/setup_public_tooling.sh`
 - `scripts/run_public_replay.sh`
 - `scripts/run_first_practice_backtest.sh`
+- `scripts/run_official_tutorial_backtest.sh`
 - `scripts/diff_backtest_trades.py`
 - `scripts/decompose_backtest_trades.py`
 - `scripts/run_parameter_sweep.py`
+- `scripts/run_backtest_with_limit_overrides.py`
 - `scripts/run_mechanics_probes.py`
 - `scripts/open_visualizer.py`
 - `scripts/run_round2_practice_backtest.sh`
 - `scripts/init_trader_from_template.sh`
 - `templates/trader.py`
 - `rounds/tutorial/trader.py`
+- `rounds/tutorial_round_1/trader.py`
 - `rounds/round2/trader.py`
 
 ## Repo-local workflow
