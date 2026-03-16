@@ -36,6 +36,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
             "min_wall_size": 8,
         },
     },
+    "baskets": {},
 }
 
 
@@ -50,6 +51,10 @@ class RuntimeConfig:
     @property
     def products(self) -> dict[str, dict[str, Any]]:
         return self.raw["products"]
+
+    @property
+    def baskets(self) -> dict[str, dict[str, Any]]:
+        return self.raw["baskets"]
 
 
 def load_runtime_config(env_var: str = "TCOSW_TRADER_CONFIG") -> RuntimeConfig:

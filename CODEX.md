@@ -36,10 +36,15 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - `scripts/run_public_replay.sh`
 - `scripts/run_first_practice_backtest.sh`
 - `scripts/diff_backtest_trades.py`
+- `scripts/decompose_backtest_trades.py`
 - `scripts/run_parameter_sweep.py`
+- `scripts/run_mechanics_probes.py`
+- `scripts/open_visualizer.py`
+- `scripts/run_round2_practice_backtest.sh`
 - `scripts/init_trader_from_template.sh`
 - `templates/trader.py`
 - `rounds/tutorial/trader.py`
+- `rounds/round2/trader.py`
 
 ## Repo-local workflow
 
@@ -59,10 +64,10 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 
 ## Immediate execution priorities
 
-1. Get prior-round public replay running locally.
-2. Create the trader code skeleton with shared helpers and logging discipline.
-3. Add a baseline diff workflow for replay outputs.
-4. Keep round-opening assumptions explicit so Prosperity 4 changes are caught immediately.
+1. Keep the round-opening assumptions explicit so Prosperity 4 changes are caught immediately.
+2. Use the replay, visualizer, probe, and decomposition loop before enabling any new module by default.
+3. Treat the generic basket engine as experimental until live-round evidence supports it.
+4. Preserve simple positive baselines rather than shipping negative complexity.
 
 ## Standard artifacts
 

@@ -9,3 +9,5 @@ artifacts/*
 !artifacts/.gitkeep
 data/*
 !data/.gitkeep
+!data/probes/
+!data/probes/**

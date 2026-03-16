@@ -47,3 +47,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: the resin fair-value perturbation was intentionally large and materially degraded results; smaller sweeps should be explored next on stable regions rather than peaks.
 - Rejected alternatives: keeping a self-contained one-off trader file separate from the shared runtime.
 - Next follow-up: add challenge-window practice runs on additional bundled rounds and extend the runtime with basket and conversion-aware modules when round files support them.
+
+### 2026-03-16 - visualizer-compatible loop and mechanics probes
+
+- Status: `confirmed`
+- Area: `tooling`
+- Hypothesis: the prep repo should not assume the visualizer or simulator mechanics are working just because the backtester runs; visualizer-compatible logging, explicit mechanics probes, and challenge-window basket checks are required to keep the workflow aligned with the research.
+- Trigger for the work: the visualizer failed to parse the repo's initial replay logs, and the first generic round-2 basket implementation lost heavily across the bundled public days.
+- Development window: `round 0 day -1`, custom controlled probe datasets, and bundled `round 2 days -1/0/1`
+- Challenge window: full bundled `round 2`
+- Before: tutorial logs were not visualizer-compatible; no controlled mechanics probes existed; generic round-2 basket execution with component hedging produced `-728,505` over bundled round-2 days.
+- After: tutorial logs load in the Prosperity 3 visualizer; controlled probes confirm end-of-iteration cancellation, product-limit cancellation, and `--match-trades` behavior; round-2 baseline trader now stays on the positive fixed-fair plus dominant-liquidity core and produces `+57,018.5` over bundled round-2 days.
+- Trade-level changes: added visualizer-format compressed logging, `traderData`-backed runtime persistence, trade decomposition tooling, controlled probe datasets and traders, an explicit visualizer server helper, and a basket engine with a minimum-history gate that remains available for experiments rather than enabled by default.
+- PnL / trade count deltas: round-2 no-basket baseline finished at `+57,018.5` with `21,458` submission trades; generic basket variants finished at `-728,505`, `-267,125`, `-77,762`, `-15,654`, and `-14,634` on the same bundled data windows depending on hedging and threshold settings.
+- Parameter sensitivity note: basket performance is highly sensitive and remained negative across the bundled challenge window even after stricter thresholds; keep the module experimental until visual inspection on actual round data identifies a repeatable edge.
+- Rejected alternatives: assuming `prosperity3bt --vis` implied log compatibility, and defaulting the round-2 practice trader to a generic basket strategy just because basket stat-arb is a recurring archetype.
+- Next follow-up: only re-enable basket logic in a default trader after candidate discovery and visual review on the relevant round data support the thresholds.

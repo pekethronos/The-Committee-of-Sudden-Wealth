@@ -19,12 +19,46 @@ class ParsedTrade:
     def side(self) -> str:
         return "BUY" if self.quantity > 0 else "SELL"
 
+    @property
+    def involves_submission(self) -> bool:
+        return self.buyer == "SUBMISSION" or self.seller == "SUBMISSION"
+
+    @property
+    def submission_side(self) -> str | None:
+        if self.buyer == "SUBMISSION":
+            return "BUY"
+        if self.seller == "SUBMISSION":
+            return "SELL"
+        return None
+
+
+@dataclass(frozen=True, slots=True)
+class ActivitySnapshot:
+    timestamp: int
+    product: str
+    best_bid: int | None
+    best_ask: int | None
+    mid_price: float
+    profit_and_loss: float
+
+
+@dataclass(frozen=True, slots=True)
+class ClassifiedTrade:
+    timestamp: int
+    product: str
+    side: str
+    mode: str
+    price: int
+    quantity: int
+    cashflow: float
+
 
 @dataclass(frozen=True, slots=True)
 class BacktestSummary:
     product_pnl: dict[str, float]
     total_pnl: float
     trades: list[ParsedTrade]
+    snapshots: dict[tuple[int, str], ActivitySnapshot]
 
 
 def parse_backtest_log(path: str | Path) -> BacktestSummary:
@@ -39,6 +73,17 @@ def parse_backtest_log(path: str | Path) -> BacktestSummary:
     lines = [line for line in activities_blob.splitlines() if line.strip()]
     rows = [line.split(";") for line in lines[1:]]
     last_timestamp = int(rows[-1][1])
+    snapshots = {
+        (int(row[1]), row[2]): ActivitySnapshot(
+            timestamp=int(row[1]),
+            product=row[2],
+            best_bid=int(row[3]) if row[3] else None,
+            best_ask=int(row[9]) if row[9] else None,
+            mid_price=float(row[15]),
+            profit_and_loss=float(row[16]),
+        )
+        for row in rows
+    }
     product_pnl = {
         row[2]: float(row[-1])
         for row in rows
@@ -62,6 +107,7 @@ def parse_backtest_log(path: str | Path) -> BacktestSummary:
         product_pnl=product_pnl,
         total_pnl=sum(product_pnl.values()),
         trades=trades,
+        snapshots=snapshots,
     )
 
 
@@ -115,3 +161,33 @@ def _trade_key(trade: ParsedTrade) -> dict[str, int | str]:
         "quantity": trade.quantity,
         "side": trade.side,
     }
+
+
+def classify_submission_trades(summary: BacktestSummary) -> list[ClassifiedTrade]:
+    classified: list[ClassifiedTrade] = []
+    for trade in summary.trades:
+        submission_side = trade.submission_side
+        if submission_side is None:
+            continue
+
+        snapshot = summary.snapshots.get((trade.timestamp, trade.symbol))
+        mode = "unknown"
+        if snapshot is not None:
+            if submission_side == "BUY":
+                mode = "take" if snapshot.best_ask is not None and trade.price >= snapshot.best_ask else "make"
+            else:
+                mode = "take" if snapshot.best_bid is not None and trade.price <= snapshot.best_bid else "make"
+
+        signed_quantity = trade.quantity if submission_side == "BUY" else -trade.quantity
+        classified.append(
+            ClassifiedTrade(
+                timestamp=trade.timestamp,
+                product=trade.symbol,
+                side=submission_side,
+                mode=mode,
+                price=trade.price,
+                quantity=trade.quantity,
+                cashflow=-(trade.price * signed_quantity),
+            )
+        )
+    return classified

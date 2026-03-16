@@ -11,7 +11,7 @@ The starting research base is:
 - `prosperity_competition_research.md`
 - `prosperity_repo_strategy_mining.md`
 
-Those two documents already answer the broad strategic question. The remaining work is execution:
+Those two documents already answer the broad strategic question. The remaining work is disciplined iteration:
 
 - build a fast replay and review loop
 - implement reusable strategy modules for recurring Prosperity archetypes
@@ -40,18 +40,20 @@ Those two documents already answer the broad strategic question. The remaining w
 3. Use `$prosperity-strategy-iteration` to patch the trader, replay the change, and log the before/after evidence.
 4. Use `$prosperity-manual-round-solver` only when the manual challenge is live or when building reusable templates for it.
 
-## Immediate priorities
+## Pre-Day-1 status
 
-Before Prosperity 4 starts:
+Completed:
 
-1. Verify the prior-round replay toolchain works locally.
-2. Build a trader code skeleton with shared execution and risk helpers.
-3. Implement the recurring modules first:
-   - fixed-fair market making with inventory clearing
-   - dominant-liquidity fair estimation
-   - basket premium arbitrage
-   - conversion-cost accounting scaffold
-4. Keep all iteration evidence in the logs under `docs/`.
+1. Prior-round replay runs locally with `prosperity3bt`.
+2. Tutorial logs open in the Prosperity 3 visualizer through `scripts/open_visualizer.py`.
+3. Shared runtime covers fixed-fair, dominant-liquidity, basket scaffolding, and conversion cost helpers.
+4. Mechanics probes cover order cancellation, position-limit cancellation, and trade-matching mode behavior.
+5. Trade decomposition, parameter sweeps, and replay diff tooling are in place.
+
+Current baseline stance from the bundled public data:
+
+- keep round-0 and round-2 baselines simple and evidence-backed
+- leave the generic basket module available for experiments, but do not enable it by default until a visual review supports the thresholds on real round data
 
 ## Public-round tooling
 
@@ -63,7 +65,11 @@ Start with:
 ./scripts/init_trader_from_template.sh rounds/tutorial/trader.py
 ./scripts/run_public_replay.sh rounds/tutorial/trader.py 0
 ./scripts/run_first_practice_backtest.sh
+./scripts/run_round2_practice_backtest.sh
 ./scripts/diff_backtest_trades.py artifacts/sweeps/baseline_runtime.log artifacts/sweeps/bad_resin_runtime.log
+./scripts/decompose_backtest_trades.py artifacts/tutorial/replays/round0.log
+./scripts/run_mechanics_probes.py
+./scripts/open_visualizer.py artifacts/tutorial/replays/round0.log --no-open
 ```
 
 These helpers are intentionally thin wrappers so the repo can standardize the workflow without locking into one exact public tool implementation.

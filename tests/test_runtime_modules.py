@@ -1,3 +1,5 @@
+import json
+from types import SimpleNamespace
 from pathlib import Path
 
 from tcosw.analysis.backtest_logs import diff_trades, parse_backtest_log
@@ -12,8 +14,8 @@ from tcosw.conversion import (
     suggested_taker_sell_price,
 )
 from tcosw.logging_utils import BoundedLogger
-from tcosw.models import BookSnapshot, OrderLevel
-from tcosw.runtime import BasketSpreadTracker
+from tcosw.models import BookSnapshot, Order, OrderLevel
+from tcosw.runtime import BasketSpreadTracker, build_runtime
 from tcosw.strategies.basket import BasketSignal
 from tcosw.strategies.dominant_liquidity import DominantLiquidityStrategy
 
@@ -89,3 +91,50 @@ def test_runtime_config_defaults_are_loadable() -> None:
     config = load_runtime_config()
     assert "RAINFOREST_RESIN" in config.products
     assert "KELP" in config.products
+
+
+def test_runtime_basket_strategy_uses_trader_data_history() -> None:
+    runtime = build_runtime(
+        config_override={
+            "products": {},
+            "baskets": {
+                "PICNIC_BASKET1": {
+                    "weights": {"CROISSANTS": 2, "JAMS": 1},
+                    "position_limit": 10,
+                    "component_limits": {"CROISSANTS": 40, "JAMS": 30},
+                    "premium_window": 5,
+                    "volatility_window": 5,
+                    "entry_zscore": 1.5,
+                    "exit_zscore": 0.5,
+                    "max_units": 3,
+                    "hedge_components": True,
+                }
+            },
+        }
+    )
+
+    class FakeDepth:
+        def __init__(self, buys: dict[int, int], sells: dict[int, int]) -> None:
+            self.buy_orders = buys
+            self.sell_orders = sells
+
+    state = SimpleNamespace(
+        order_depths={
+            "PICNIC_BASKET1": FakeDepth({49: 8}, {51: -8}),
+            "CROISSANTS": FakeDepth({9: 50}, {11: -50}),
+            "JAMS": FakeDepth({9: 50}, {11: -50}),
+        },
+        position={},
+        traderData=json.dumps({"baskets": {"PICNIC_BASKET1": [0.0, 0.0, 0.0, 0.0]}}),
+    )
+
+    orders, conversions, trader_data, runtime_log = runtime.run(state, Order)
+
+    assert conversions == 0
+    assert [order.quantity for order in orders["PICNIC_BASKET1"]] == [-3]
+    assert [order.quantity for order in orders["CROISSANTS"]] == [6]
+    assert [order.quantity for order in orders["JAMS"]] == [3]
+    assert "basket_signal" in runtime_log
+
+    persisted = json.loads(trader_data)
+    assert len(persisted["baskets"]["PICNIC_BASKET1"]) == 5
