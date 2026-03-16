@@ -27,6 +27,10 @@ Use this skill the moment official Prosperity materials or a new round becomes a
   - logging limits
   - allowed libraries
   - manual-round rules
+- For tutorial or Day 0 drops, also verify:
+  - product names against local backtester assumptions
+  - position limits against local limit tables
+  - whether a local compatibility wrapper is needed before replay works
 
 3. Sort each product into an archetype.
 - Start with:
@@ -45,6 +49,7 @@ Use this skill the moment official Prosperity materials or a new round becomes a
 
 5. Record the triage result.
 - Update `/Users/sb/tcosw/docs/round-open-checklist.md` with the actual round findings.
+- Update `/Users/sb/tcosw/docs/day0-intake.md` when this is a tutorial or Day 0 release.
 - Save official files under `data/`.
 - If strategy work should begin, hand off to `$prosperity-candidate-discovery` or `$prosperity-strategy-iteration`.
 

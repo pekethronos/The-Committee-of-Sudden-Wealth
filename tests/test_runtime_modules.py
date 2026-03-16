@@ -138,3 +138,28 @@ def test_runtime_basket_strategy_uses_trader_data_history() -> None:
 
     persisted = json.loads(trader_data)
     assert len(persisted["baskets"]["PICNIC_BASKET1"]) == 5
+
+
+def test_build_runtime_allows_env_to_override_config_override(monkeypatch) -> None:
+    monkeypatch.setenv(
+        "TCOSW_TRADER_CONFIG",
+        json.dumps({"products": {"EMERALDS": {"quote_clip": 9}}}),
+    )
+    runtime = build_runtime(
+        config_override={
+            "products": {
+                "EMERALDS": {
+                    "strategy": "fixed_fair",
+                    "fair_value": 10000,
+                    "quote_width": 1,
+                    "quote_clip": 4,
+                    "min_take_edge": 1,
+                    "clear_threshold": 12,
+                    "clear_clip": 6,
+                    "skew_per_unit": 0.05,
+                    "position_limit": 80,
+                }
+            }
+        }
+    )
+    assert runtime.config.products["EMERALDS"]["quote_clip"] == 9

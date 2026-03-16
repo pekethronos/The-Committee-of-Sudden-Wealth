@@ -79,3 +79,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: `EMERALDS` is stable enough to keep fixed fair at `10,000`; `TOMATOES` mean shifts across the two tutorial days, so keep it on a book-driven fair until visual review identifies something stronger.
 - Rejected alternatives: hardcoding a single fair for `TOMATOES`, renaming official files to match prior Prosperity product names, or editing the installed backtester package directly.
 - Next follow-up: run candidate discovery on `TOMATOES` using the official tutorial log and only then decide whether any extra tomato-specific logic is worth adding.
+
+### 2026-03-16 - official tutorial tomato quote and take refinement
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: `TOMATOES` should stay on the dominant-liquidity archetype from the research, but the baseline was likely over-taking and over-clearing relative to the official tutorial order-book behavior.
+- Trigger for the work: Day 0 candidate discovery on the official tutorial replay showed the baseline `TOMATOES` logic was profitable but left obvious room to widen quotes, suppress weak taker fills, and reduce unnecessary inventory clearing.
+- Development window: official tutorial `round 0 days -2/-1` from `data/TUTORIAL_ROUND_1/`
+- Challenge window: same official two-day tutorial bundle; no broader official Prosperity 4 window exists yet
+- Before: tutorial upload baseline used `quote_width 1`, `quote_clip 3`, `min_take_edge 1`, `clear_threshold 10` and finished at `+8,022` total (`EMERALDS +1,464`, `TOMATOES +6,558`).
+- After: current upload candidate keeps `EMERALDS` unchanged and sets `TOMATOES` to `quote_width 6`, `quote_clip 5`, `min_take_edge 3`, `clear_threshold 99`, `clear_clip 5`, `skew_per_unit 0.04`, `min_wall_size 6`; replay finished at `+17,408.5` total (`EMERALDS +1,464.0`, `TOMATOES +15,944.5`).
+- Trade-level changes: the winning path came from the same dominant-liquidity engine, not a new strategy family; wider `TOMATOES` quotes captured more spread, raising `min_take_edge` removed weak tomato taker trades entirely on the observed bundle, and effectively disabling tomato clearing helped because the replay never pushed inventory anywhere near the `80` limit.
+- PnL / trade count deltas: total official tutorial PnL improved by `+9,386.5`; `TOMATOES` PnL improved by `+9,386.5`; final replay used `1,218` submission trades, down from `1,945`; the best no-clearing candidate stayed at a maximum observed absolute tomato position of `43`, well below the `80` limit.
+- Parameter sensitivity note: `TOMATOES` showed a broad profitable region around `quote_width 6` with stricter take thresholds and much looser clearing. Widths `7` and `8` degraded, while `quote_clip 5` and `6` tied at the top. `min_take_edge 3` and `4` also tied on the observed bundle, so keep the slightly simpler `3`.
+- Rejected alternatives: adding a new tomato-specific predictive model, changing the `EMERALDS` core, or enabling more aggressive tomato clearing just because prior-round research says clearing often matters near position limits.
+- Next follow-up: use this file as the tutorial upload candidate and wait for Round 1 materials before adding any new strategy family.

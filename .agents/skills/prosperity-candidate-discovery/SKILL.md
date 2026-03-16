@@ -14,12 +14,18 @@ Find candidate opportunities from data and replay outputs without assuming they 
 - Read the current operating context before interpreting cases:
   - `/Users/sb/tcosw/README.md`
   - `/Users/sb/tcosw/CODEX.md`
+  - `/Users/sb/tcosw/docs/day0-intake.md` when official Day 0 or tutorial materials exist
   - `/Users/sb/tcosw/docs/trade-candidate-log.md`
 - Prefer official round data, replay outputs, and structured logs over screenshots or memory.
 
 2. Pull the retained evidence.
 - Start from public round files in `data/` and replay artifacts in `artifacts/`.
 - If official Prosperity 4 data is available, treat it as highest priority.
+- If the official tutorial bundle is active, start from:
+  - `data/TUTORIAL_ROUND_1/`
+  - `artifacts/official_tutorial/replays/round0.log`
+  - `scripts/decompose_backtest_trades.py`
+  - `scripts/open_visualizer.py`
 - If only prior-round public data exists, be explicit that the output is practice evidence, not Prosperity 4 confirmation.
 
 3. Generate candidate windows objectively.
@@ -52,6 +58,10 @@ Find candidate opportunities from data and replay outputs without assuming they 
 6. Stop or hand off.
 - If the evidence is weak, stop after analysis.
 - If the evidence supports a real implementation pass, switch to `$prosperity-strategy-iteration`.
+- If the evidence is for a tutorial upload candidate, end with one explicit recommendation:
+  - keep current baseline
+  - patch one rule now
+  - reject the idea for the current upload
 
 ## Output Standard
 
@@ -62,6 +72,7 @@ Return:
 - measured favorable and adverse path
 - the classification for each candidate
 - whether the set justifies strategy iteration now
+- the exact upload recommendation for the current baseline if a tutorial or live upload is in play
 
 ## References
 

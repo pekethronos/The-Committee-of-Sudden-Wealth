@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
 from typing import Any
 
 from tcosw.adapters.prosperity import orders_to_datamodel, product_state_from_order_depth
-from tcosw.config import RuntimeConfig, load_runtime_config
+from tcosw.config import RuntimeConfig, DEFAULT_CONFIG, load_runtime_config, merge_dicts
 from tcosw.logging_utils import BoundedLogger
 from tcosw.strategies.basket import BasketArbitrageStrategy, BasketSpreadTracker
 from tcosw.strategies.dominant_liquidity import DominantLiquidityStrategy
@@ -144,12 +145,20 @@ class StrategyRuntime:
         raise ValueError(f"unknown strategy: {strategy_name}")
 
 
-def build_runtime(config_override: dict[str, Any] | None = None) -> StrategyRuntime:
-    config = load_runtime_config()
-    if config_override:
-        from tcosw.config import merge_dicts
+def build_runtime(
+    config_override: dict[str, Any] | None = None,
+    env_var: str = "TCOSW_TRADER_CONFIG",
+) -> StrategyRuntime:
+    if config_override is None:
+        return StrategyRuntime(config=load_runtime_config(env_var=env_var))
 
-        merge_dicts(config.raw, config_override)
+    config = RuntimeConfig(raw=json.loads(json.dumps(DEFAULT_CONFIG)))
+    merge_dicts(config.raw, config_override)
+
+    raw_env = os.environ.get(env_var)
+    if raw_env:
+        merge_dicts(config.raw, json.loads(raw_env))
+
     return StrategyRuntime(config=config)
 
 

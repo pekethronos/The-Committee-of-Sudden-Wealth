@@ -8,12 +8,14 @@
 4. replay baseline and current on the same window
 5. replay at least one challenge window when possible
 6. record trade-level changes and confidence level
+7. if this is an upload decision, end with one file path and one sentence explaining why it is the current upload candidate
 
 ## Confidence rules
 
 - fewer than 10 trades: label the result `provisional`
 - one clean case with no analogs: usually not enough
 - improvements that only move one trade and degrade the challenge window are not real wins
+- tutorial-only wins that rely on one provided day and lose the other day are not upload candidates
 
 ## Preferred change order
 

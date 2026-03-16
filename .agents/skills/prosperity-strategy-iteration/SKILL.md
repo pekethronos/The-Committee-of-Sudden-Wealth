@@ -15,6 +15,7 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 - Read:
   - `/Users/sb/tcosw/README.md`
   - `/Users/sb/tcosw/CODEX.md`
+  - `/Users/sb/tcosw/docs/day0-intake.md` when official Day 0 or tutorial files exist
   - `/Users/sb/tcosw/docs/trade-candidate-log.md`
   - `/Users/sb/tcosw/docs/strategy-iteration-log.md`
 
@@ -41,6 +42,7 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 5. Replay before and after.
 - Run the same window before and after the change.
 - If data volume allows, run at least one challenge window not used to build the change.
+- If the official tutorial bundle is active, replay both tutorial days before claiming a better upload candidate.
 - Compare:
   - trade count
   - realized PnL
@@ -51,6 +53,7 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 - Append a concise entry to `/Users/sb/tcosw/docs/strategy-iteration-log.md`.
 - Update `/Users/sb/tcosw/docs/trade-candidate-log.md` for any surviving rejected or uncertain cases.
 - Save replay outputs or diffs under `/Users/sb/tcosw/artifacts/` when they matter beyond the current turn.
+- If the goal is an upload candidate, state clearly which file should be uploaded and why.
 
 ## Validation Standard
 
@@ -62,6 +65,7 @@ Require, at minimum:
 - explicit trade-level differences
 - challenge-window evidence when the data supports it
 - a written note if the sample is too small for strong confidence
+- a single explicit upload recommendation when the user is asking for a final trader
 
 ## References
 
