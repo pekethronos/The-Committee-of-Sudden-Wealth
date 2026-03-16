@@ -41,6 +41,12 @@ Those two documents already answer the broad strategic question. The remaining w
 3. Use `$prosperity-strategy-iteration` to patch the trader, replay the change, and log the before/after evidence.
 4. Use `$prosperity-manual-round-solver` only when the manual challenge is live or when building reusable templates for it.
 
+## Submission rule
+
+- Any file intended for Prosperity upload must be a true standalone single-file submission.
+- Do not ship repo-local imports in upload candidates.
+- Restrict upload-file imports to the official `datamodel` module plus Python standard library modules.
+
 ## Pre-Day-1 status
 
 Completed:

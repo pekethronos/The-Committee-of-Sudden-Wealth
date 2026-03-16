@@ -60,3 +60,14 @@ Use this file for wider-window replay summaries so cumulative drift is visible.
 - Win rate: not yet summarized
 - Max drawdown: not yet summarized
 - Notes: current tutorial upload candidate keeps `EMERALDS` fixed fair and refines `TOMATOES` within the same dominant-liquidity archetype; best candidate on the official bundle used wider quotes, stricter tomato taking, and effectively no tomato clearing because observed inventory stayed far below the official limit
+
+### 2026-03-16
+
+- Commit / branch: `post-teammate-integration pre-commit state on main`
+- Dataset: official tutorial bundle in `data/TUTORIAL_ROUND_1/`
+- Window: `round 0 days -2/-1`
+- Trade count: `1,995` submission trades
+- Realized PnL: `+31,797.0`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: current tutorial upload candidate is now a standalone single-file submission in `rounds/tutorial_round_1/trader.py`; it integrates the teammate market-making logic and persists tomato EMA state through `traderData`

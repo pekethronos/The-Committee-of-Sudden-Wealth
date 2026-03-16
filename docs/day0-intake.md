@@ -46,23 +46,24 @@ Captured on `2026-03-16` from the Day 0 uplink, the algorithmic challenge page, 
 1. Use `rounds/tutorial_round_1/trader.py` as the current upload candidate.
 2. Run `./scripts/run_official_tutorial_backtest.sh`.
 3. Open the resulting log in the visualizer with `./scripts/open_visualizer.py artifacts/official_tutorial/replays/round0.log --no-open`.
-4. Keep `EMERALDS` simple unless the visualizer shows a contradiction; the profitable Day 0 work is on `TOMATOES` quote placement and take selectivity, not on adding new strategy families.
+4. Keep `EMERALDS` and `TOMATOES` inside the recurring market-making archetypes from the research; the profitable Day 0 work is in sizing, taking, and fair estimation, not in adding a new strategy family.
+5. Upload only the standalone single-file trader, not repo-local wrappers.
 
 ## Current tutorial upload candidate
 
 - `EMERALDS`
   - Keep the fixed-fair baseline at `10,000`.
+  - Use aggressive take / clear / make logic around the fixed fair.
 - `TOMATOES`
-  - Keep the dominant-liquidity fair estimator.
-  - Current best tested config on the official two-day tutorial bundle:
-    - `quote_width: 6`
-    - `quote_clip: 5`
-    - `min_take_edge: 3`
-    - `clear_threshold: 99`
-    - `clear_clip: 5`
-    - `skew_per_unit: 0.04`
-    - `min_wall_size: 6`
+  - Use EMA-based fair estimation with one-step mean reversion, inventory skew, and an adverse-volume filter on taker trades.
+  - Persist the tomato EMA state through `traderData` rather than relying on in-memory state.
 - Why this is the upload candidate:
-  - It improved total official tutorial replay PnL from `+8,022` to `+17,408.5`.
+  - It is upload-safe as a true single-file submission that only depends on `datamodel` and the Python standard library.
+  - It improved total official tutorial replay PnL from `+8,022` to `+31,797.0`.
   - The gain was consistent across both official tutorial days.
-  - Replay inspection showed the stronger candidate still stayed well inside the official `80` position limit, so the looser clearing rule did not create a limit-pressure problem in the observed data.
+  - Replay inspection showed the stronger candidate still stayed well inside the official `80` position limit on both products.
+
+## Reference files
+
+- Current upload file: `rounds/tutorial_round_1/trader.py`
+- Original teammate candidate preserved for reference: `rounds/tutorial_round_1/algo_original.py`

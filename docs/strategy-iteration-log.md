@@ -95,3 +95,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: `TOMATOES` showed a broad profitable region around `quote_width 6` with stricter take thresholds and much looser clearing. Widths `7` and `8` degraded, while `quote_clip 5` and `6` tied at the top. `min_take_edge 3` and `4` also tied on the observed bundle, so keep the slightly simpler `3`.
 - Rejected alternatives: adding a new tomato-specific predictive model, changing the `EMERALDS` core, or enabling more aggressive tomato clearing just because prior-round research says clearing often matters near position limits.
 - Next follow-up: use this file as the tutorial upload candidate and wait for Round 1 materials before adding any new strategy family.
+
+### 2026-03-16 - tutorial teammate algo integration and upload-safe rewrite
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: a stronger tutorial candidate might already exist in teammate work, but the winning logic still needs to respect the research constraints and be converted into a true single-file Prosperity upload.
+- Trigger for the work: teammate commit `57a3e06` added `algo.py`, and the previous recommended upload file turned out to be invalid for real submission because it imported repo-local modules.
+- Development window: official tutorial `round 0 days -2/-1` from `data/TUTORIAL_ROUND_1/`
+- Challenge window: same official two-day tutorial bundle; no broader official Prosperity 4 window exists yet
+- Before: repo-recommended upload file was not packaging-safe and the best verified valid strategy in repo produced `+17,408.5`.
+- After: `rounds/tutorial_round_1/trader.py` is now a true standalone upload file using only `datamodel` plus standard library imports, and it integrates the better teammate logic with `traderData` persistence for tomato EMA state; replay finished at `+31,797.0` total (`EMERALDS +14,945.0`, `TOMATOES +16,852.0`).
+- Trade-level changes: `EMERALDS` moved from conservative clipped quoting to a full-capacity fixed-fair take / clear / make loop; `TOMATOES` moved from dominant-liquidity quoting to EMA-plus-mean-reversion market making with adverse-volume filtering and inventory skew. The standalone rewrite preserved the teammate logic’s PnL exactly while removing the upload packaging failure mode.
+- PnL / trade count deltas: total official tutorial PnL improved by `+14,388.5` versus the prior repo candidate and by `+23,775.0` versus the first official baseline; final replay used `1,995` submission trades; max observed absolute position stayed at `30` in `EMERALDS` and `26` in `TOMATOES`, both well below the official `80` limit.
+- Parameter sensitivity note: the teammate strategy already sat on a strong region without further tuning. The material edge came from the strategy family change on the tutorial products, not from another local threshold sweep.
+- Rejected alternatives: keeping the invalid repo-import upload file, uploading the teammate file unchanged with its `prosperity3bt.datamodel` dependency, or rewrapping the teammate logic back into repo-local shared modules for the upload path.
+- Next follow-up: upload `rounds/tutorial_round_1/trader.py` only, and treat any future live-round submission as invalid until it passes the standalone single-file check.

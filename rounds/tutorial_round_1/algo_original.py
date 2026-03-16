@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Tuple
 
-from prosperity3bt.datamodel import (
+# Original teammate candidate from commit 57a3e06, kept for reference.
+from datamodel import (
     Listing,
     Observation,
     Order,
@@ -357,4 +358,3 @@ class Trader:
 
         logger.flush(state, orders, conversions, trader_data)
         return orders, conversions, trader_data
-
