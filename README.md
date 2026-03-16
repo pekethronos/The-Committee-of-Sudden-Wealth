@@ -71,3 +71,9 @@ These helpers are intentionally thin wrappers so the repo can standardize the wo
 `prosperity3bt` ships bundled prior-round practice data, so the first replay can run immediately without cloning extra datasets.
 
 For deeper inspection, clone-only research repos live under `external/` locally and are ignored by git.
+
+To sync the exact repo set referenced by the research docs:
+
+```bash
+./scripts/sync_research_repos.sh
+```
