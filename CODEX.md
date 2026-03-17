@@ -16,7 +16,7 @@ Primary goals before Round 1:
 - `~/tcosw/prosperity_competition_research.md`
 - `~/tcosw/prosperity_repo_strategy_mining.md`
 
-These are reference documents, not the operating workflow.
+These are not optional reference documents. They are part of the operating workflow and should constrain strategy changes unless new official Prosperity 4 materials or repeated live evidence justify a deviation.
 
 ## Open These Next
 
@@ -65,6 +65,7 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 ## Principles
 
 - Prefer evidence from official docs and replay outputs over memory and screenshots.
+- Treat the two research docs and the mined prior top-team repos as the default strategic ground truth for recurring archetypes.
 - Keep no-lookahead discipline during idea evaluation.
 - Separate candidate discovery from strategy edits.
 - Treat upload packaging as part of validation: any Prosperity submission file must stand alone and cannot depend on repo-local modules.

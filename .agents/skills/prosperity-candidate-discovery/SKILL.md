@@ -11,6 +11,9 @@ Find candidate opportunities from data and replay outputs without assuming they 
 
 1. Define the scope.
 - Identify the round, products, data source, and replay outputs to scan.
+- Re-anchor on:
+  - `/Users/sb/tcosw/prosperity_competition_research.md`
+  - `/Users/sb/tcosw/prosperity_repo_strategy_mining.md`
 - Read the current operating context before interpreting cases:
   - `/Users/sb/tcosw/README.md`
   - `/Users/sb/tcosw/CODEX.md`

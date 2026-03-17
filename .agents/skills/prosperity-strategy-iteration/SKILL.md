@@ -12,6 +12,9 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 1. Build the case list.
 - Extract exact products, timestamps, and target or bad trades from replay outputs, logs, or candidate review.
 - Treat user-suggested setups as hypotheses, not targets to defend.
+- Re-anchor on the research before editing:
+  - `/Users/sb/tcosw/prosperity_competition_research.md`
+  - `/Users/sb/tcosw/prosperity_repo_strategy_mining.md`
 - Read:
   - `/Users/sb/tcosw/README.md`
   - `/Users/sb/tcosw/CODEX.md`
@@ -31,6 +34,7 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 
 3. Decide whether a change is justified.
 - If the case does not support a robust rule, stop.
+- If the change would contradict the research or the repeated prior top-team patterns for the same archetype, require explicit new official or live-evidence support.
 - If multiple refinements exist, prefer the one that:
   - captures the intended windows
   - suppresses known bad windows

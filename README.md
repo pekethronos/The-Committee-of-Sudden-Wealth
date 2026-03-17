@@ -18,6 +18,8 @@ Those two documents already answer the broad strategic question. The remaining w
 - keep evidence and iteration notes in one place
 - be ready to diff official Prosperity 4 materials the day they drop
 
+They are not optional background reading. Strategy work in this repo should treat the research docs and the prior top-team repo evidence as mandatory constraints unless new official Prosperity 4 materials directly contradict them.
+
 ## Repo layout
 
 - `CODEX.md` - repo handoff and operating context
@@ -35,6 +37,14 @@ Those two documents already answer the broad strategic question. The remaining w
 - `artifacts/` - replay outputs, visualizer exports, and diff artifacts
 
 ## Operating workflow
+
+Before changing strategy logic, re-anchor on:
+
+- `prosperity_competition_research.md`
+- `prosperity_repo_strategy_mining.md`
+- the cloned prior-edition reference repos under `external/` when the change touches a recurring archetype
+
+Do not make strategy changes that drift away from that evidence base without an explicit reason grounded in new official materials or repeated live submission evidence.
 
 1. Use `$prosperity-round-open-checklist` when official Prosperity 4 materials or a new round opens.
 2. Use `$prosperity-candidate-discovery` to scan round data for missed trades, suspicious triggers, and repeated failure patterns.
