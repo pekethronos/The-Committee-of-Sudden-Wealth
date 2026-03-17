@@ -93,3 +93,25 @@ Use this file for wider-window replay summaries so cumulative drift is visible.
 - Win rate: not yet summarized
 - Max drawdown: not yet summarized
 - Notes: repeated hidden run matched the same hidden-public mismatch profile as `576`; repeated review rejected further tomato buy-side and asymmetric-reversion changes, so the current standalone trader remains the best upload candidate
+
+### 2026-03-17
+
+- Commit / branch: `post-tomato-refactor working tree on main`
+- Dataset: official tutorial bundle in `data/TUTORIAL_ROUND_1/`
+- Window: `round 0 days -2/-1`
+- Trade count: `1,930` submission trades
+- Realized PnL: `+31,559.0`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: current tutorial upload candidate now keeps the refactored tomato helper path but defaults to `ema_reversion` rather than `hybrid`; validation kept reconstructed hidden PnL flat at `+195` on `576` while reducing total public trade count and slightly improving total public PnL
+
+### 2026-03-17
+
+- Commit / branch: `post-final-tutorial-sweep working tree on main`
+- Dataset: official tutorial bundle plus reconstructed hidden tutorial bundles
+- Window: official `round 0 days -2/-1`, reconstructed hidden `576` and `1462`
+- Trade count: `1,930` submission trades on the public bundle; hidden live bundles stayed at `166` to `172` submission trades
+- Realized PnL: public `+31,559.0`; reconstructed hidden `+195` on `576`; reconstructed hidden `+221` on `1462`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: final tutorial validation sweep did not find a better tomato variant than the active constants. Nearby changes to take widths, maker edge, skew, EMA window, and reversion beta all lost on at least one required window, so the current standalone trader remains the final tutorial recommendation.

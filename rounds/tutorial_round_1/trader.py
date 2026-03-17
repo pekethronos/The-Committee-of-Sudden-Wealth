@@ -21,13 +21,15 @@ TOMATOES: Symbol = "TOMATOES"
 POSITION_LIMIT = 80
 EMERALDS_FAIR = 10_000
 
+TOMATOES_MODE = "ema_reversion"
 TOMATOES_EMA_WINDOW = 10
 TOMATOES_REVERSION_BETA = -0.25
 TOMATOES_BUY_TAKE_WIDTH = 1
 TOMATOES_SELL_TAKE_WIDTH = 3
 TOMATOES_CLEAR_WIDTH = 0
 TOMATOES_MIN_EDGE = 2
-TOMATOES_ADVERSE_VOLUME = 15
+TOMATOES_MIN_WALL_SIZE = 15
+TOMATOES_LARGE_LEVEL_EXTRA_EDGE = 2
 TOMATOES_SKEW_FACTOR = 0.15
 
 
@@ -172,23 +174,105 @@ class Logger:
 logger = Logger()
 
 
-def _load_state(raw: str) -> dict[str, float | None]:
-    if not raw:
-        return {"tomatoes_ema": None, "tomatoes_last_mid": None}
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError:
-        return {"tomatoes_ema": None, "tomatoes_last_mid": None}
-    if not isinstance(payload, dict):
-        return {"tomatoes_ema": None, "tomatoes_last_mid": None}
+def _empty_state() -> dict[str, float | int | str | None]:
     return {
-        "tomatoes_ema": payload.get("tomatoes_ema"),
-        "tomatoes_last_mid": payload.get("tomatoes_last_mid"),
+        "tomatoes_mode": None,
+        "tomatoes_ema": None,
+        "tomatoes_last_mid": None,
+        "tomatoes_last_wall_mid": None,
+        "tomatoes_wall_seen_count": 0,
     }
 
 
-def _dump_state(payload: dict[str, float | None]) -> str:
+def _load_state(raw: str) -> dict[str, float | int | str | None]:
+    state = _empty_state()
+    if not raw:
+        return state
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError:
+        return state
+    if not isinstance(payload, dict):
+        return state
+    state["tomatoes_mode"] = payload.get("tomatoes_mode")
+    state["tomatoes_ema"] = payload.get("tomatoes_ema")
+    state["tomatoes_last_mid"] = payload.get("tomatoes_last_mid")
+    state["tomatoes_last_wall_mid"] = payload.get("tomatoes_last_wall_mid")
+    wall_seen_count = payload.get("tomatoes_wall_seen_count", 0)
+    state["tomatoes_wall_seen_count"] = wall_seen_count if isinstance(wall_seen_count, int) else 0
+    return state
+
+
+def _dump_state(payload: dict[str, float | int | str | None]) -> str:
     return json.dumps(payload, separators=(",", ":"))
+
+
+def _pick_largest_level(levels: dict[int, int], is_bid: bool) -> tuple[int | None, int]:
+    if not levels:
+        return None, 0
+    price, volume = max(
+        levels.items(),
+        key=lambda item: (abs(item[1]), item[0] if is_bid else -item[0]),
+    )
+    return price, abs(volume)
+
+
+def compute_tomatoes_book_features(depth: OrderDepth) -> dict[str, int | float | None]:
+    best_bid = max(depth.buy_orders.keys(), default=None)
+    best_ask = min(depth.sell_orders.keys(), default=None)
+    raw_mid = None
+    spread = None
+    if best_bid is not None and best_ask is not None:
+        raw_mid = (best_bid + best_ask) / 2.0
+        spread = best_ask - best_bid
+
+    largest_bid_price, largest_bid_size = _pick_largest_level(depth.buy_orders, is_bid=True)
+    largest_ask_price, largest_ask_size = _pick_largest_level(depth.sell_orders, is_bid=False)
+
+    wall_mid = None
+    if (
+        largest_bid_price is not None
+        and largest_ask_price is not None
+        and largest_bid_size >= TOMATOES_MIN_WALL_SIZE
+        and largest_ask_size >= TOMATOES_MIN_WALL_SIZE
+    ):
+        wall_mid = (largest_bid_price + largest_ask_price) / 2.0
+
+    return {
+        "best_bid": best_bid,
+        "best_ask": best_ask,
+        "raw_mid": raw_mid,
+        "spread": spread,
+        "largest_bid_price": largest_bid_price,
+        "largest_bid_size": largest_bid_size,
+        "largest_ask_price": largest_ask_price,
+        "largest_ask_size": largest_ask_size,
+        "wall_mid": wall_mid,
+    }
+
+
+def is_large_tomatoes_level(volume: int) -> bool:
+    return abs(volume) >= TOMATOES_MIN_WALL_SIZE
+
+
+def tomatoes_take_width(base_width: int, volume: int) -> int:
+    return base_width + (TOMATOES_LARGE_LEVEL_EXTRA_EDGE if is_large_tomatoes_level(volume) else 0)
+
+
+def tomatoes_quote_caps(position: int) -> tuple[int, int]:
+    abs_position = abs(position)
+    if abs_position <= 10:
+        increasing_clip, reducing_clip = 20, 20
+    elif abs_position <= 25:
+        increasing_clip, reducing_clip = 12, 20
+    elif abs_position <= 40:
+        increasing_clip, reducing_clip = 6, 16
+    else:
+        increasing_clip, reducing_clip = 0, 12
+
+    buy_clip = reducing_clip if position < 0 else increasing_clip
+    sell_clip = reducing_clip if position > 0 else increasing_clip
+    return buy_clip, sell_clip
 
 
 class Trader:
@@ -257,7 +341,55 @@ class Trader:
 
         return fair, tomatoes_ema, mid
 
-    def compute_orders_tomatoes(
+    def estimate_tomatoes_fair(
+        self,
+        features: dict[str, int | float | None],
+        persisted: dict[str, float | int | str | None],
+        strategy_mode: str,
+    ) -> tuple[float, dict[str, float | int | str | None]]:
+        raw_mid = features["raw_mid"]
+        wall_mid = features["wall_mid"]
+        if not isinstance(raw_mid, (int, float)):
+            updated = _empty_state()
+            updated.update(persisted)
+            updated["tomatoes_mode"] = strategy_mode
+            return 0.0, updated
+
+        tomatoes_ema = persisted["tomatoes_ema"]
+        tomatoes_last_mid = persisted["tomatoes_last_mid"]
+        ema_fair, tomatoes_ema, tomatoes_last_mid = self.update_tomatoes_fair(
+            float(raw_mid),
+            tomatoes_ema if isinstance(tomatoes_ema, (int, float)) else None,
+            tomatoes_last_mid if isinstance(tomatoes_last_mid, (int, float)) else None,
+        )
+
+        dominant_liquidity_fair = float(wall_mid) if isinstance(wall_mid, (int, float)) else float(raw_mid)
+        selected_mode = strategy_mode
+        if strategy_mode == "dominant_liquidity":
+            fair = dominant_liquidity_fair
+        elif strategy_mode == "hybrid":
+            if isinstance(wall_mid, (int, float)):
+                fair = dominant_liquidity_fair
+                selected_mode = "dominant_liquidity"
+            else:
+                fair = ema_fair
+                selected_mode = "ema_reversion"
+        else:
+            fair = ema_fair
+            selected_mode = "ema_reversion"
+
+        updated = _empty_state()
+        updated.update(persisted)
+        updated["tomatoes_mode"] = selected_mode
+        updated["tomatoes_ema"] = tomatoes_ema
+        updated["tomatoes_last_mid"] = tomatoes_last_mid
+        if isinstance(wall_mid, (int, float)):
+            updated["tomatoes_last_wall_mid"] = float(wall_mid)
+            updated["tomatoes_wall_seen_count"] = int(updated["tomatoes_wall_seen_count"]) + 1
+
+        return fair, updated
+
+    def compute_orders_tomatoes_baseline(
         self,
         depth: OrderDepth,
         position: int,
@@ -289,7 +421,7 @@ class Trader:
         for ask_price, ask_vol in sell_orders:
             if ask_price > fair - TOMATOES_BUY_TAKE_WIDTH:
                 break
-            if abs(ask_vol) >= TOMATOES_ADVERSE_VOLUME:
+            if is_large_tomatoes_level(ask_vol):
                 continue
             qty = min(-ask_vol, buy_capacity)
             if qty <= 0:
@@ -300,7 +432,7 @@ class Trader:
         for bid_price, bid_vol in buy_orders:
             if bid_price < fair + TOMATOES_SELL_TAKE_WIDTH:
                 break
-            if bid_vol >= TOMATOES_ADVERSE_VOLUME:
+            if is_large_tomatoes_level(bid_vol):
                 continue
             qty = min(bid_vol, sell_capacity)
             if qty <= 0:
@@ -342,10 +474,123 @@ class Trader:
 
         return orders, tomatoes_ema, tomatoes_last_mid
 
+    def compute_orders_tomatoes_experimental(
+        self,
+        depth: OrderDepth,
+        position: int,
+        persisted: dict[str, float | int | str | None],
+        strategy_mode: str,
+    ) -> tuple[list[Order], dict[str, float | int | str | None]]:
+        features = compute_tomatoes_book_features(depth)
+        updated_state = _empty_state()
+        updated_state.update(persisted)
+
+        best_bid = features["best_bid"]
+        best_ask = features["best_ask"]
+        if not isinstance(best_bid, int) or not isinstance(best_ask, int):
+            updated_state["tomatoes_mode"] = strategy_mode
+            return [], updated_state
+
+        fair, updated_state = self.estimate_tomatoes_fair(features, updated_state, strategy_mode)
+        fair -= position * TOMATOES_SKEW_FACTOR
+
+        orders: list[Order] = []
+        sell_orders = sorted(depth.sell_orders.items())
+        buy_orders = sorted(depth.buy_orders.items(), reverse=True)
+
+        buy_capacity = POSITION_LIMIT - position
+        sell_capacity = POSITION_LIMIT + position
+        projected_position = position
+
+        for ask_price, ask_vol in sell_orders:
+            take_width = tomatoes_take_width(TOMATOES_BUY_TAKE_WIDTH, ask_vol)
+            if ask_price > fair - take_width:
+                break
+            qty = min(-ask_vol, buy_capacity)
+            if qty <= 0:
+                break
+            orders.append(Order(TOMATOES, ask_price, qty))
+            buy_capacity -= qty
+            projected_position += qty
+
+        for bid_price, bid_vol in buy_orders:
+            take_width = tomatoes_take_width(TOMATOES_SELL_TAKE_WIDTH, bid_vol)
+            if bid_price < fair + take_width:
+                break
+            qty = min(bid_vol, sell_capacity)
+            if qty <= 0:
+                break
+            orders.append(Order(TOMATOES, bid_price, -qty))
+            sell_capacity -= qty
+            projected_position -= qty
+
+        clearing_position = projected_position
+        if clearing_position > 0:
+            clear_price = int(round(fair + TOMATOES_CLEAR_WIDTH))
+            for bid_price, bid_vol in buy_orders:
+                if bid_price < clear_price:
+                    break
+                qty = min(bid_vol, sell_capacity, clearing_position)
+                if qty <= 0:
+                    break
+                orders.append(Order(TOMATOES, bid_price, -qty))
+                sell_capacity -= qty
+                clearing_position -= qty
+                projected_position -= qty
+        elif clearing_position < 0:
+            clear_price = int(round(fair - TOMATOES_CLEAR_WIDTH))
+            for ask_price, ask_vol in sell_orders:
+                if ask_price > clear_price:
+                    break
+                qty = min(-ask_vol, buy_capacity, -clearing_position)
+                if qty <= 0:
+                    break
+                orders.append(Order(TOMATOES, ask_price, qty))
+                buy_capacity -= qty
+                clearing_position += qty
+                projected_position += qty
+
+        bid_price = min(best_bid + 1, int(round(fair)) - TOMATOES_MIN_EDGE)
+        ask_price = max(best_ask - 1, int(round(fair)) + TOMATOES_MIN_EDGE)
+        buy_quote_cap, sell_quote_cap = tomatoes_quote_caps(projected_position)
+
+        if buy_capacity > 0 and buy_quote_cap > 0:
+            orders.append(Order(TOMATOES, bid_price, min(buy_capacity, buy_quote_cap)))
+
+        if sell_capacity > 0 and sell_quote_cap > 0:
+            orders.append(Order(TOMATOES, ask_price, -min(sell_capacity, sell_quote_cap)))
+
+        return orders, updated_state
+
+    def compute_orders_tomatoes(
+        self,
+        depth: OrderDepth,
+        position: int,
+        persisted: dict[str, float | int | str | None],
+    ) -> tuple[list[Order], dict[str, float | int | str | None]]:
+        features = compute_tomatoes_book_features(depth)
+        if TOMATOES_MODE == "baseline":
+            baseline_orders, tomatoes_ema, tomatoes_last_mid = self.compute_orders_tomatoes_baseline(
+                depth,
+                position,
+                persisted["tomatoes_ema"] if isinstance(persisted["tomatoes_ema"], (int, float)) else None,
+                persisted["tomatoes_last_mid"] if isinstance(persisted["tomatoes_last_mid"], (int, float)) else None,
+            )
+            updated_state = _empty_state()
+            updated_state.update(persisted)
+            updated_state["tomatoes_mode"] = "baseline"
+            updated_state["tomatoes_ema"] = tomatoes_ema
+            updated_state["tomatoes_last_mid"] = tomatoes_last_mid
+            wall_mid = features["wall_mid"]
+            if isinstance(wall_mid, (int, float)):
+                updated_state["tomatoes_last_wall_mid"] = float(wall_mid)
+                updated_state["tomatoes_wall_seen_count"] = int(updated_state["tomatoes_wall_seen_count"]) + 1
+            return baseline_orders, updated_state
+
+        return self.compute_orders_tomatoes_experimental(depth, position, persisted, TOMATOES_MODE)
+
     def run(self, state: TradingState) -> tuple[dict[Symbol, list[Order]], int, str]:
         persisted = _load_state(state.traderData)
-        tomatoes_ema = persisted["tomatoes_ema"]
-        tomatoes_last_mid = persisted["tomatoes_last_mid"]
 
         orders: dict[Symbol, list[Order]] = {}
         conversions = 0
@@ -358,19 +603,13 @@ class Trader:
 
         tomatoes_depth = state.order_depths.get(TOMATOES)
         if tomatoes_depth is not None:
-            tomatoes_orders, tomatoes_ema, tomatoes_last_mid = self.compute_orders_tomatoes(
+            tomatoes_orders, persisted = self.compute_orders_tomatoes(
                 tomatoes_depth,
                 state.position.get(TOMATOES, 0),
-                tomatoes_ema if isinstance(tomatoes_ema, (int, float)) else None,
-                tomatoes_last_mid if isinstance(tomatoes_last_mid, (int, float)) else None,
+                persisted,
             )
             orders[TOMATOES] = tomatoes_orders
 
-        trader_data = _dump_state(
-            {
-                "tomatoes_ema": tomatoes_ema,
-                "tomatoes_last_mid": tomatoes_last_mid,
-            }
-        )
+        trader_data = _dump_state(persisted)
         logger.flush(state, orders, conversions, trader_data)
         return orders, conversions, trader_data

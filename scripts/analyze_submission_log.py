@@ -17,8 +17,32 @@ class BookRow:
     product: str
     best_bid: int | None
     best_ask: int | None
+    bid_levels: tuple[tuple[int, int], ...]
+    ask_levels: tuple[tuple[int, int], ...]
+    largest_bid_price: int | None
+    largest_bid_size: int
+    largest_ask_price: int | None
+    largest_ask_size: int
+    wall_mid: float | None
     mid_price: float
     pnl: float
+
+
+def parse_levels(row: dict[str, str], side: str) -> tuple[tuple[int, int], ...]:
+    levels: list[tuple[int, int]] = []
+    for idx in range(1, 4):
+        price_key = f"{side}_price_{idx}"
+        volume_key = f"{side}_volume_{idx}"
+        if not row.get(price_key) or not row.get(volume_key):
+            continue
+        levels.append((int(row[price_key]), abs(int(row[volume_key]))))
+    return tuple(levels)
+
+
+def pick_largest_level(levels: tuple[tuple[int, int], ...], is_bid: bool) -> tuple[int | None, int]:
+    if not levels:
+        return None, 0
+    return max(levels, key=lambda item: (item[1], item[0] if is_bid else -item[0]))
 
 
 def parse_activities_log(payload: str) -> dict[tuple[str, int], BookRow]:
@@ -27,12 +51,31 @@ def parse_activities_log(payload: str) -> dict[tuple[str, int], BookRow]:
     for row in reader:
         bid = int(row["bid_price_1"]) if row["bid_price_1"] else None
         ask = int(row["ask_price_1"]) if row["ask_price_1"] else None
+        bid_levels = parse_levels(row, "bid")
+        ask_levels = parse_levels(row, "ask")
+        largest_bid_price, largest_bid_size = pick_largest_level(bid_levels, is_bid=True)
+        largest_ask_price, largest_ask_size = pick_largest_level(ask_levels, is_bid=False)
+        wall_mid = None
+        if (
+            largest_bid_price is not None
+            and largest_ask_price is not None
+            and largest_bid_size >= 15
+            and largest_ask_size >= 15
+        ):
+            wall_mid = (largest_bid_price + largest_ask_price) / 2.0
         rows[(row["product"], int(row["timestamp"]))] = BookRow(
             day=int(row["day"]),
             timestamp=int(row["timestamp"]),
             product=row["product"],
             best_bid=bid,
             best_ask=ask,
+            bid_levels=bid_levels,
+            ask_levels=ask_levels,
+            largest_bid_price=largest_bid_price,
+            largest_bid_size=largest_bid_size,
+            largest_ask_price=largest_ask_price,
+            largest_ask_size=largest_ask_size,
+            wall_mid=wall_mid,
             mid_price=float(row["mid_price"]),
             pnl=float(row["profit_and_loss"]),
         )
@@ -80,6 +123,92 @@ def summarize_positions(log_entries: list[dict[str, Any]]) -> dict[str, dict[str
         product: {"max_abs_position": max_abs[product], "final_position": final_pos.get(product, 0)}
         for product in sorted(set(max_abs) | set(final_pos))
     }
+
+
+def classify_tomato_trade_bucket(trade: dict[str, Any], mode: str, book: BookRow) -> str:
+    if mode == "make":
+        return "maker"
+
+    levels = book.ask_levels if trade["buyer"] == "SUBMISSION" else book.bid_levels
+    level_bucket = "small"
+    price = int(trade["price"])
+    for level_price, level_size in levels:
+        if level_price != price:
+            continue
+        if level_size >= 15:
+            level_bucket = "large"
+        break
+
+    side_prefix = "buy" if trade["buyer"] == "SUBMISSION" else "sell"
+    return f"{side_prefix}_take_{level_bucket}"
+
+
+def summarize_tomato_trade_buckets(
+    trade_history: list[dict[str, Any]],
+    book_rows: dict[tuple[str, int], BookRow],
+) -> dict[str, dict[str, float | int | None]]:
+    buckets: dict[str, dict[str, float | int | None]] = defaultdict(
+        lambda: {
+            "trade_count": 0,
+            "quantity": 0,
+            "signed_cashflow": 0.0,
+            "raw_mid_distance_sum": 0.0,
+            "wall_mid_distance_sum": 0.0,
+            "wall_mid_samples": 0,
+        }
+    )
+
+    for trade in trade_history:
+        if trade["symbol"] != "TOMATOES":
+            continue
+        if trade["buyer"] != "SUBMISSION" and trade["seller"] != "SUBMISSION":
+            continue
+
+        key = (trade["symbol"], int(trade["timestamp"]))
+        book = book_rows.get(key)
+        if book is None:
+            continue
+
+        mode = classify_trade(trade, book_rows)
+        bucket_name = classify_tomato_trade_bucket(trade, mode, book)
+        quantity = int(trade["quantity"])
+        price = float(trade["price"])
+        side = "BUY" if trade["buyer"] == "SUBMISSION" else "SELL"
+        cashflow = -price * quantity if side == "BUY" else price * quantity
+
+        bucket = buckets[bucket_name]
+        bucket["trade_count"] += 1
+        bucket["quantity"] += quantity
+        bucket["signed_cashflow"] += cashflow
+        bucket["raw_mid_distance_sum"] += abs(price - book.mid_price)
+        if book.wall_mid is not None:
+            bucket["wall_mid_distance_sum"] += abs(price - book.wall_mid)
+            bucket["wall_mid_samples"] += 1
+
+    ordered_names = (
+        "buy_take_small",
+        "buy_take_large",
+        "sell_take_small",
+        "sell_take_large",
+        "maker",
+    )
+    summary: dict[str, dict[str, float | int | None]] = {}
+    for name in ordered_names:
+        bucket = buckets[name]
+        trade_count = int(bucket["trade_count"])
+        wall_mid_samples = int(bucket["wall_mid_samples"])
+        summary[name] = {
+            "trade_count": trade_count,
+            "quantity": int(bucket["quantity"]),
+            "signed_cashflow": float(bucket["signed_cashflow"]),
+            "avg_abs_raw_mid_distance": (
+                float(bucket["raw_mid_distance_sum"]) / trade_count if trade_count else None
+            ),
+            "avg_abs_wall_mid_distance": (
+                float(bucket["wall_mid_distance_sum"]) / wall_mid_samples if wall_mid_samples else None
+            ),
+        }
+    return summary
 
 
 def main() -> None:
@@ -196,6 +325,7 @@ def main() -> None:
         "by_mode": dict(sorted(by_mode.items())),
         "estimated_product_pnl": dict(sorted(product_estimated_pnl.items())),
         "position_summary": position_summary,
+        "tomatoes_trade_buckets": summarize_tomato_trade_buckets(trade_history, activities),
         "reference_comparison": comparison,
     }
     print(json.dumps(summary, indent=2, sort_keys=True))

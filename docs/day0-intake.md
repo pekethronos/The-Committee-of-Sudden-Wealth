@@ -55,15 +55,18 @@ Captured on `2026-03-16` from the Day 0 uplink, the algorithmic challenge page, 
   - Keep the fixed-fair baseline at `10,000`.
   - Use aggressive take / clear / make logic around the fixed fair.
 - `TOMATOES`
-  - Use EMA-based fair estimation with one-step mean reversion, inventory skew, and an adverse-volume filter on taker trades.
+  - Default to EMA-based fair estimation with one-step mean reversion, inventory skew, stricter edge requirements on large displayed levels, and inventory-based passive quote caps.
+  - Keep `baseline`, `dominant_liquidity`, and `hybrid` as replay concepts for local iteration, but do not expose replay toggles or environment-driven mode switches in the upload file itself.
   - Keep tomato buy-taking more permissive than tomato sell-taking; the hidden live tutorial review showed tomato sell-takes were the weaker side.
   - Persist the tomato EMA state through `traderData` rather than relying on in-memory state.
+  - Final tutorial stance after the last hidden/public constant sweep: keep the active tomato constants unchanged. Nearby sweeps on take widths, maker edge, skew, EMA window, and reversion beta did not beat the current file on both reconstructed hidden bundles and the public tutorial bundle.
 - Why this is the upload candidate:
   - It is upload-safe as a true single-file submission that only depends on `datamodel` and the Python standard library.
-  - It improved total official tutorial replay PnL from `+8,022` to `+31,558.0`.
-  - The gain remained strong across both official tutorial days even after the live-driven tomato sell-taker tightening.
+  - The upload file should stay minimal and deterministic: no optional environment reads, no repo-only toggles, and no extra imports added only for local convenience.
+  - It improved total official tutorial replay PnL from `+8,022` to `+31,559.0`.
+  - The gain remained strong across both official tutorial days after the live-driven tomato sell-taker tightening and the tomato helper refactor.
   - Replay inspection showed the stronger candidate still stayed well inside the official `80` position limit on both products.
-  - Live tutorial submission `576` confirmed the hidden evaluator differs from the public sample path, so the current file includes one small hidden-evidence patch rather than a larger public-only re-tune.
+  - Reconstructed hidden replays stayed at `+195` on the `576` path and `+221` on the `1462` path, so the refactor passed the non-regression gate before becoming the default upload mode.
 
 ## Reference files
 

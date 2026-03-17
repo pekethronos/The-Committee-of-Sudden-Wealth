@@ -69,6 +69,7 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - Keep no-lookahead discipline during idea evaluation.
 - Separate candidate discovery from strategy edits.
 - Treat upload packaging as part of validation: any Prosperity submission file must stand alone and cannot depend on repo-local modules.
+- Treat upload-safe code as a narrower target than "works locally": avoid optional environment access, import-time configuration, and non-essential helper imports in the actual upload file.
 - Log rejected and uncertain cases so the same weak idea is not rediscovered repeatedly.
 - Use challenge-window replays whenever data volume allows; do not trust a single development window.
 - Prefer robust threshold regions and simpler logic over a sharper in-sample fit.

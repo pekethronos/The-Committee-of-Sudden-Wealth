@@ -57,6 +57,8 @@ Do not make strategy changes that drift away from that evidence base without an 
 - Any file intended for Prosperity upload must be a true standalone single-file submission.
 - Do not ship repo-local imports in upload candidates.
 - Restrict upload-file imports to the official `datamodel` module plus Python standard library modules.
+- Treat the accepted upload file as stricter than a normal local script: do not add optional configurability, environment-variable reads, or convenience imports unless they are required for the submission itself.
+- Keep replay-only switches and experiment toggles out of the upload candidate. If a variant needs local toggles, keep that in a separate local branch, copy, or repo-only helper rather than the file you plan to upload.
 
 ## Pre-Day-1 status
 

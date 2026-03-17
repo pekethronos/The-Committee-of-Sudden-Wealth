@@ -143,3 +143,35 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: repeated hidden evidence was stable enough to reject several tempting changes, but not strong enough to justify another strategy patch beyond the current file.
 - Rejected alternatives: asymmetric tomato reversion betas, wider tomato buy-taking, and looser tomato adverse-volume gating.
 - Next follow-up: keep the current standalone trader as the upload candidate until a new real submission bundle produces a materially different hidden signal.
+
+### 2026-03-17 - tutorial tomato feature refactor and gated mode promotion
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: the tomato review was directionally right about fair estimation, large-level handling, and passive quote sizing, but only a replay-gated refactor should be allowed to replace the current upload candidate.
+- Trigger for the work: an external review argued that `TOMATOES` was anchored to the wrong signal, skipped the wrong large levels, and quoted too much residual capacity; repo review confirmed those as valid hypotheses but not as already-proven fixes on the hidden evaluator.
+- Development window: official tutorial `round 0 days -2/-1` from `data/TUTORIAL_ROUND_1/`
+- Challenge window: reconstructed hidden days from `data/576/576.log` and `data/1462/1462.log`, plus direct hidden-log analysis of the downloaded submission bundles
+- Before: current upload candidate used one tomato path only: EMA-plus-reversion fair, blanket skipping of large taker levels, and full residual-capacity passive quoting; official tutorial replay finished at `+31,558.0`, reconstructed hidden replays finished at `+195` on `576` and `+221` on `1462`.
+- After: `rounds/tutorial_round_1/trader.py` now keeps an exact `baseline` mode plus new tomato helpers for book features, fair estimation, large-level classification, and inventory-based quote caps. Validation rejected `hybrid` as the default (`+31,508` public, `+146` reconstructed `576`) and promoted the refactored `ema_reversion` path instead (`+31,559` public, `+195` reconstructed `576`, `+221` reconstructed `1462`).
+- Trade-level changes: large tomato levels are no longer blanket-skipped in the experimental path; they now feed a wall-mid candidate and require extra taker edge. Passive tomato quotes now cap only the inventory-increasing side more aggressively as inventory grows. Hidden log analysis on `576` and `1462` also showed zero large-level tomato taker fills on the actual live path, which is why the `hybrid` wall-mid default failed to earn its way in.
+- PnL / trade count deltas: promoted candidate improved official tutorial replay by `+1.0` (`+31,559.0` vs `+31,558.0`) while reducing total submission trades from `1,995` to `1,930`; reconstructed hidden replays stayed flat at `+195` on `576` and `+221` on `1462`, meeting the non-regression gate.
+- Parameter sensitivity note: the fair-estimator refactor was useful, but the actual winner was not the originally planned `hybrid` default. Current data supports keeping `ema_reversion` as the hardcoded upload path while preserving `baseline`, `dominant_liquidity`, and `hybrid` only as replay concepts outside the submitted file.
+- Rejected alternatives: defaulting the upload file to `hybrid`, switching to pure dominant-liquidity fair without a gate, and promoting a candidate that missed the reconstructed-hidden threshold just because it looked more aligned with prior public writeups.
+- Next follow-up: keep the refactored `ema_reversion` default as the tutorial upload candidate, avoid adding local-config toggles to the upload file, and revisit `hybrid` only if a future live bundle actually contains large-level tomato taker opportunities.
+
+### 2026-03-17 - final tutorial tomato constant sweep
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: after the repeated hidden tutorial bundles, there might still be a better tomato execution variant hiding in a narrow constant change rather than a broader fair-model rewrite.
+- Trigger for the work: submission `1989` produced literally the same hidden PnL as `1462`, so the refactor was clearly not an algorithm improvement and the active candidate still needed a last evidence-based search before being treated as final.
+- Development window: official tutorial `round 0 days -2/-1` from `data/TUTORIAL_ROUND_1/`
+- Challenge window: reconstructed hidden days from `data/576/576.log` and `data/1462/1462.log`
+- Before: active upload candidate used `TOMATOES_BUY_TAKE_WIDTH = 1`, `TOMATOES_SELL_TAKE_WIDTH = 3`, `TOMATOES_MIN_EDGE = 2`, `TOMATOES_SKEW_FACTOR = 0.15`, `TOMATOES_EMA_WINDOW = 10`, `TOMATOES_REVERSION_BETA = -0.25`; replay finished at `+31,559.0` on the official tutorial bundle, `+195` on reconstructed `576`, and `+221` on reconstructed `1462`.
+- After: no new code was promoted. The same active candidate remains the final tutorial upload recommendation because every nearby tomato variant tested lost on at least one required window.
+- Trade-level changes: none promoted. Hidden tomato review still showed the same shape as earlier: positive maker contribution, usable buy-taking, weaker sell-taking than the public sample, and zero large-level tomato taker fills on the actual hidden path.
+- PnL / trade count deltas: tested variants included buy-take widths `0/1/2`, sell-take widths `2/3/4`, maker edge `1/2/3`, skew `0.10/0.15/0.20`, EMA windows `6/10/14`, and reversion betas `-0.10/-0.25/-0.40`. The best reconstructed `576` result stayed at `+195` and the best reconstructed `1462` result stayed at `+221`, both with the current settings; public alternatives such as `sell width 4`, `edge 1`, and `buy width 0` all regressed to `+31,477` to `+31,528`.
+- Parameter sensitivity note: the active tomato settings sit on a small but stable plateau across the only hidden windows available. The hidden evidence was especially intolerant of lower skew and weaker reversion settings, while public-only improvements remained the same overfit trap as before.
+- Rejected alternatives: looser tomato buy-taking, tighter maker edge, sell width `4`, lower skew, shorter EMA windows, and weaker reversion.
+- Next follow-up: treat the current `rounds/tutorial_round_1/trader.py` as final for the tutorial phase and stop iterating it unless a new live bundle produces a materially different hidden path.
