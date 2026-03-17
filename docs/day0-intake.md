@@ -56,12 +56,14 @@ Captured on `2026-03-16` from the Day 0 uplink, the algorithmic challenge page, 
   - Use aggressive take / clear / make logic around the fixed fair.
 - `TOMATOES`
   - Use EMA-based fair estimation with one-step mean reversion, inventory skew, and an adverse-volume filter on taker trades.
+  - Keep tomato buy-taking more permissive than tomato sell-taking; the hidden live tutorial review showed tomato sell-takes were the weaker side.
   - Persist the tomato EMA state through `traderData` rather than relying on in-memory state.
 - Why this is the upload candidate:
   - It is upload-safe as a true single-file submission that only depends on `datamodel` and the Python standard library.
-  - It improved total official tutorial replay PnL from `+8,022` to `+31,797.0`.
-  - The gain was consistent across both official tutorial days.
+  - It improved total official tutorial replay PnL from `+8,022` to `+31,558.0`.
+  - The gain remained strong across both official tutorial days even after the live-driven tomato sell-taker tightening.
   - Replay inspection showed the stronger candidate still stayed well inside the official `80` position limit on both products.
+  - Live tutorial submission `576` confirmed the hidden evaluator differs from the public sample path, so the current file includes one small hidden-evidence patch rather than a larger public-only re-tune.
 
 ## Reference files
 

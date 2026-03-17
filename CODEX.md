@@ -39,6 +39,9 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - `scripts/run_official_tutorial_backtest.sh`
 - `scripts/diff_backtest_trades.py`
 - `scripts/decompose_backtest_trades.py`
+- `scripts/analyze_submission_log.py`
+- `scripts/extract_submission_round_data.py`
+- `scripts/run_tutorial_submission_sweep.py`
 - `scripts/run_parameter_sweep.py`
 - `scripts/run_backtest_with_limit_overrides.py`
 - `scripts/run_mechanics_probes.py`

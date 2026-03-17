@@ -76,6 +76,8 @@ Start with:
 ./scripts/run_round2_practice_backtest.sh
 ./scripts/diff_backtest_trades.py artifacts/sweeps/baseline_runtime.log artifacts/sweeps/bad_resin_runtime.log
 ./scripts/decompose_backtest_trades.py artifacts/tutorial/replays/round0.log
+python3 ./scripts/analyze_submission_log.py data/576/576.log --compare-prices data/TUTORIAL_ROUND_1/prices_round_0_day_-1.csv
+python3 ./scripts/extract_submission_round_data.py data/576/576.log artifacts/submissions/576/reconstructed
 ./scripts/run_mechanics_probes.py
 ./scripts/open_visualizer.py artifacts/tutorial/replays/round0.log --no-open
 ```

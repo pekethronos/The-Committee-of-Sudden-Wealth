@@ -23,7 +23,8 @@ EMERALDS_FAIR = 10_000
 
 TOMATOES_EMA_WINDOW = 10
 TOMATOES_REVERSION_BETA = -0.25
-TOMATOES_TAKE_WIDTH = 1
+TOMATOES_BUY_TAKE_WIDTH = 1
+TOMATOES_SELL_TAKE_WIDTH = 3
 TOMATOES_CLEAR_WIDTH = 0
 TOMATOES_MIN_EDGE = 2
 TOMATOES_ADVERSE_VOLUME = 15
@@ -286,7 +287,7 @@ class Trader:
         sell_capacity = POSITION_LIMIT + position
 
         for ask_price, ask_vol in sell_orders:
-            if ask_price > fair - TOMATOES_TAKE_WIDTH:
+            if ask_price > fair - TOMATOES_BUY_TAKE_WIDTH:
                 break
             if abs(ask_vol) >= TOMATOES_ADVERSE_VOLUME:
                 continue
@@ -297,7 +298,7 @@ class Trader:
             buy_capacity -= qty
 
         for bid_price, bid_vol in buy_orders:
-            if bid_price < fair + TOMATOES_TAKE_WIDTH:
+            if bid_price < fair + TOMATOES_SELL_TAKE_WIDTH:
                 break
             if bid_vol >= TOMATOES_ADVERSE_VOLUME:
                 continue

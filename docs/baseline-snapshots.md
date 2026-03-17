@@ -71,3 +71,14 @@ Use this file for wider-window replay summaries so cumulative drift is visible.
 - Win rate: not yet summarized
 - Max drawdown: not yet summarized
 - Notes: current tutorial upload candidate is now a standalone single-file submission in `rounds/tutorial_round_1/trader.py`; it integrates the teammate market-making logic and persists tomato EMA state through `traderData`
+
+### 2026-03-17
+
+- Commit / branch: `post-live-review pre-commit state on main`
+- Dataset: hidden live tutorial submission `576`
+- Window: hidden evaluator day from downloaded submission logs
+- Trade count: `172` submission trades
+- Realized PnL: `+2,434.578125`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: hidden evaluator path differs from the public `prices_round_0_day_-1.csv` on `371` of `4,000` compared product-timestamp rows; live estimated product PnL was approximately `EMERALDS +1,050` and `TOMATOES +1,384`

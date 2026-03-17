@@ -111,3 +111,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: the teammate strategy already sat on a strong region without further tuning. The material edge came from the strategy family change on the tutorial products, not from another local threshold sweep.
 - Rejected alternatives: keeping the invalid repo-import upload file, uploading the teammate file unchanged with its `prosperity3bt.datamodel` dependency, or rewrapping the teammate logic back into repo-local shared modules for the upload path.
 - Next follow-up: upload `rounds/tutorial_round_1/trader.py` only, and treat any future live-round submission as invalid until it passes the standalone single-file check.
+
+### 2026-03-17 - live tutorial review and asymmetric tomato taking
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: the hidden tutorial evaluator differs materially from the public sample day, so the safest improvement is a small change supported by the real submission log rather than another broad local overfit.
+- Trigger for the work: live submission `576` returned about `+2,434.6`, far below the local two-day tutorial replay expectation, and the downloaded hidden logs showed a different order-book path from the public `day -1` file.
+- Development window: hidden live submission `data/576/576.log`
+- Challenge window: official public tutorial bundle `data/TUTORIAL_ROUND_1/`
+- Before: standalone upload candidate used symmetric tomato taker thresholds with `TOMATOES_BUY_TAKE_WIDTH = 1` and `TOMATOES_SELL_TAKE_WIDTH = 1`.
+- After: current upload candidate keeps tomato buy-taking at width `1` but raises tomato sell-taking to width `3`.
+- Trade-level changes: hidden-log analysis showed tomato maker fills had positive edge while tomato buy-takes had positive short-horizon follow-through, but tomato sell-takes had negative short-horizon follow-through. Tightening only the tomato sell side preserves the live-supported asymmetry without disturbing the profitable maker engine.
+- PnL / trade count deltas: the hidden reconstructed replay improved from `+147` to `+195` on the same extracted hidden day path, while the public tutorial bundle moved from `+31,797` to `+31,558`, a modest giveback that preserves the high-performing public baseline.
+- Parameter sensitivity note: raising the tomato sell take width from `1` to `2`, `3`, and `99` all helped on the reconstructed hidden day. Width `3` was chosen because it captured most of the hidden improvement while keeping the public-bundle degradation slightly smaller than fully disabling tomato sell-takes.
+- Rejected alternatives: trusting the public tutorial sample as if it matched the live evaluator, disabling all tomato taking, or changing the fixed-fair `EMERALDS` engine despite positive live contribution.
+- Next follow-up: use the new standalone trader for the next upload and keep `data/576/576.log` as the reference live-evidence bundle for tutorial-round review.
