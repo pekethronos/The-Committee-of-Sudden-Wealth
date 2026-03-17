@@ -30,6 +30,7 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 - `docs/round-open-checklist.md`
 - `docs/manual-round-log.md`
 - `.agents/skills/prosperity-candidate-discovery/SKILL.md`
+- `.agents/skills/prosperity-live-submission-review/SKILL.md`
 - `.agents/skills/prosperity-strategy-iteration/SKILL.md`
 - `.agents/skills/prosperity-round-open-checklist/SKILL.md`
 - `.agents/skills/prosperity-manual-round-solver/SKILL.md`
@@ -57,6 +58,7 @@ After loading `CODEX.md`, open only the paths relevant to the task:
 
 - Use `$prosperity-round-open-checklist` when official Prosperity materials for a new edition or round become available.
 - Use `$prosperity-candidate-discovery` when you want Codex to scan datasets, replay outputs, and logs for promising or suspicious cases before changing strategy code.
+- Use `$prosperity-live-submission-review` when a real uploaded submission has finished and the result bundle is available locally.
 - Use `$prosperity-strategy-iteration` when you already have a concrete strategy hypothesis and want code changes plus validation.
 - Use `$prosperity-manual-round-solver` when solving or templating manual challenges.
 

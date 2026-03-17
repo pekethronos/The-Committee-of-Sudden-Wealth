@@ -9,6 +9,7 @@
 5. replay at least one challenge window when possible
 6. record trade-level changes and confidence level
 7. if this is an upload decision, end with one file path and one sentence explaining why it is the current upload candidate
+8. if a live submission bundle exists, include it in the evidence chain before shipping a replacement upload
 
 ## Confidence rules
 

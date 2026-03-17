@@ -127,3 +127,19 @@ If the sample is tiny, say so explicitly. Do not pretend small-N validation is s
 - Parameter sensitivity note: raising the tomato sell take width from `1` to `2`, `3`, and `99` all helped on the reconstructed hidden day. Width `3` was chosen because it captured most of the hidden improvement while keeping the public-bundle degradation slightly smaller than fully disabling tomato sell-takes.
 - Rejected alternatives: trusting the public tutorial sample as if it matched the live evaluator, disabling all tomato taking, or changing the fixed-fair `EMERALDS` engine despite positive live contribution.
 - Next follow-up: use the new standalone trader for the next upload and keep `data/576/576.log` as the reference live-evidence bundle for tutorial-round review.
+
+### 2026-03-17 - repeated live review from submission 1462
+
+- Status: `confirmed`
+- Area: `market making`
+- Hypothesis: a second downloaded hidden-run bundle on the same evaluator path should tell us whether the previous tomato sell-taker patch was a real gain or just reconstructed-backtest noise.
+- Trigger for the work: submission `1462` returned another hidden-run result after the tomato sell-taker patch was uploaded.
+- Development window: hidden live submission bundles `data/576/576.log` and `data/1462/1462.log`
+- Challenge window: official public tutorial bundle `data/TUTORIAL_ROUND_1/`
+- Before: submission `576` finished at `+2,434.578125`.
+- After: submission `1462` finished at `+2,436.296875`.
+- Trade-level changes: repeated hidden-log analysis confirmed the same hidden order-book path as `576` and the same broad product contribution split (`EMERALDS` about `+1,050`, `TOMATOES` about `+1,385`). Additional candidate changes tested after `1462` included asymmetric tomato reversion and more aggressive tomato buy-taking; neither produced a robust enough improvement to justify shipping.
+- PnL / trade count deltas: `1462` improved the reported hidden result by only `+1.71875` versus `576`, which is not enough to credit the live patch with confidence; hidden reconstructed sweeps favored the current buy-take setting and rejected more aggressive tomato buying.
+- Parameter sensitivity note: repeated hidden evidence was stable enough to reject several tempting changes, but not strong enough to justify another strategy patch beyond the current file.
+- Rejected alternatives: asymmetric tomato reversion betas, wider tomato buy-taking, and looser tomato adverse-volume gating.
+- Next follow-up: keep the current standalone trader as the upload candidate until a new real submission bundle produces a materially different hidden signal.

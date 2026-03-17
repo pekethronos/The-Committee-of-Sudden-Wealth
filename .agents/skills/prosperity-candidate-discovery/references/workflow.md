@@ -30,3 +30,4 @@ Use this checklist when scanning a round or replay output.
 ## Tutorial-round note
 
 - If the task is an official tutorial upload, prefer the smallest profitable patch across all provided tutorial days over a clever one-day optimization.
+- If a real downloaded submission bundle exists, do not skip live review just because the public tutorial files are easier to replay.

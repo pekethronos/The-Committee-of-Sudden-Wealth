@@ -26,6 +26,7 @@ Find candidate opportunities from data and replay outputs without assuming they 
   - `artifacts/official_tutorial/replays/round0.log`
   - `scripts/decompose_backtest_trades.py`
   - `scripts/open_visualizer.py`
+- If downloaded live submission bundles exist, use `$prosperity-live-submission-review` first instead of treating the raw `.log` file like an ordinary public replay.
 - If only prior-round public data exists, be explicit that the output is practice evidence, not Prosperity 4 confirmation.
 
 3. Generate candidate windows objectively.

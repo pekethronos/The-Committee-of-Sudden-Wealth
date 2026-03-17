@@ -82,3 +82,14 @@ Use this file for wider-window replay summaries so cumulative drift is visible.
 - Win rate: not yet summarized
 - Max drawdown: not yet summarized
 - Notes: hidden evaluator path differs from the public `prices_round_0_day_-1.csv` on `371` of `4,000` compared product-timestamp rows; live estimated product PnL was approximately `EMERALDS +1,050` and `TOMATOES +1,384`
+
+### 2026-03-17
+
+- Commit / branch: `post-live-review pre-commit state on main`
+- Dataset: hidden live tutorial submission `1462`
+- Window: hidden evaluator day from downloaded submission logs
+- Trade count: `166` submission trades
+- Realized PnL: `+2,436.296875`
+- Win rate: not yet summarized
+- Max drawdown: not yet summarized
+- Notes: repeated hidden run matched the same hidden-public mismatch profile as `576`; repeated review rejected further tomato buy-side and asymmetric-reversion changes, so the current standalone trader remains the best upload candidate

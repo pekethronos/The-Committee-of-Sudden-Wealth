@@ -18,9 +18,11 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
   - `/Users/sb/tcosw/docs/day0-intake.md` when official Day 0 or tutorial files exist
   - `/Users/sb/tcosw/docs/trade-candidate-log.md`
   - `/Users/sb/tcosw/docs/strategy-iteration-log.md`
+  - `/Users/sb/tcosw/docs/baseline-snapshots.md`
 
 2. Validate the evidence.
 - Use replay outputs, structured logs, and official round files as the source of truth.
+- If a downloaded submission bundle exists, include that live evidence in the comparison before promoting a new upload file.
 - Keep the analysis no-lookahead.
 - Separate:
   - desired trades that were missed
@@ -54,6 +56,7 @@ Refine the trader from concrete replay evidence, not from chart impressions alon
 - Update `/Users/sb/tcosw/docs/trade-candidate-log.md` for any surviving rejected or uncertain cases.
 - Save replay outputs or diffs under `/Users/sb/tcosw/artifacts/` when they matter beyond the current turn.
 - If the goal is an upload candidate, state clearly which file should be uploaded and why.
+- Validate the packaging too: upload candidates must remain standalone single-file submissions.
 
 ## Validation Standard
 

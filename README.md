@@ -38,8 +38,9 @@ Those two documents already answer the broad strategic question. The remaining w
 
 1. Use `$prosperity-round-open-checklist` when official Prosperity 4 materials or a new round opens.
 2. Use `$prosperity-candidate-discovery` to scan round data for missed trades, suspicious triggers, and repeated failure patterns.
-3. Use `$prosperity-strategy-iteration` to patch the trader, replay the change, and log the before/after evidence.
-4. Use `$prosperity-manual-round-solver` only when the manual challenge is live or when building reusable templates for it.
+3. Use `$prosperity-live-submission-review` whenever a real upload finishes and you have downloaded the log bundle.
+4. Use `$prosperity-strategy-iteration` to patch the trader, replay the change, and log the before/after evidence.
+5. Use `$prosperity-manual-round-solver` only when the manual challenge is live or when building reusable templates for it.
 
 ## Submission rule
 

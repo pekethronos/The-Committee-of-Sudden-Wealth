@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prosperity Live Submission Review"
+  short_description: "Turn downloaded submission logs into strategy evidence."
+  default_prompt: "Use $prosperity-live-submission-review to analyze the latest downloaded Prosperity submission bundle, quantify what happened live, and decide whether the trader should change."
+
+policy:
+  allow_implicit_invocation: true
